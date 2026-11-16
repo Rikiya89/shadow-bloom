@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc48a216b1d6541d1a44a9e570369e8d, type: 3}
+  m_Name: 01_circle
+  m_EditorClassIdentifier: ShadowBloom.Core::ShadowBloom.PuzzleStage
+  stageId: 01_circle
+  displayName: The circle
+  hint: Tilt the ring until its shadow becomes a circle.
+  difficulty: 0
+  isTutorial: 1
+  curve:
+    kind: 0
+    samples: 128
+    petals: 0
+    p: 0
+    q: 0
+    minorRadius: 0
+    height: 0
+    loops: 0
+    tiltDegrees: 0
+  matchSamples: 96
+  initialEuler: {x: 68, y: 0, z: 0}
+  solutionEuler: {x: 0, y: 0, z: 0}
+  tolerance: 0.025
+  holdSeconds: 0.6
+  lineColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightColor: {r: 0.949, g: 0.941, b: 0.922, a: 1}
+  lineWidthScale: 1
+  bloomPetals: 6
+  bloomLayers: 2
+  completion: 0

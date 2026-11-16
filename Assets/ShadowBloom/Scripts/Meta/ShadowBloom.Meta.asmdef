@@ -1,0 +1,21 @@
+{
+    "name": "ShadowBloom.Meta",
+    "rootNamespace": "ShadowBloom.Meta",
+    "references": [
+        "ShadowBloom.Core",
+        "ShadowBloom.Runtime",
+        "Oculus.VR",
+        "Oculus.Interaction",
+        "Oculus.Interaction.OVR",
+        "meta.xr.mrutilitykit"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

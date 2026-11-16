@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc48a216b1d6541d1a44a9e570369e8d, type: 3}
+  m_Name: 02_petals
+  m_EditorClassIdentifier: ShadowBloom.Core::ShadowBloom.PuzzleStage
+  stageId: 02_petals
+  displayName: The petals
+  hint: Lay the flower down. Turn it until the petals line up.
+  difficulty: 1
+  isTutorial: 0
+  curve:
+    kind: 1
+    samples: 192
+    petals: 5
+    p: 0
+    q: 0
+    minorRadius: 0.45
+    height: 0.28
+    loops: 0
+    tiltDegrees: 0
+  matchSamples: 96
+  initialEuler: {x: 80, y: -30, z: 10}
+  solutionEuler: {x: 0, y: 18, z: 0}
+  tolerance: 0.07
+  holdSeconds: 0.8
+  lineColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightColor: {r: 0.949, g: 0.941, b: 0.922, a: 1}
+  lineWidthScale: 1
+  bloomPetals: 5
+  bloomLayers: 3
+  completion: 0

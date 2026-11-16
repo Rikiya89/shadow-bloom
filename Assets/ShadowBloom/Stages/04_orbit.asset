@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc48a216b1d6541d1a44a9e570369e8d, type: 3}
+  m_Name: 04_orbit
+  m_EditorClassIdentifier: ShadowBloom.Core::ShadowBloom.PuzzleStage
+  stageId: 04_orbit
+  displayName: The orbit
+  hint: Three orbits, one shadow. Align every loop.
+  difficulty: 3
+  isTutorial: 0
+  curve:
+    kind: 3
+    samples: 128
+    petals: 0
+    p: 0
+    q: 0
+    minorRadius: 0
+    height: 0
+    loops: 3
+    tiltDegrees: 58
+  matchSamples: 64
+  initialEuler: {x: -75, y: 20, z: 35}
+  solutionEuler: {x: 0, y: -25, z: 0}
+  tolerance: 0.055
+  holdSeconds: 0.9
+  lineColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightColor: {r: 0.949, g: 0.941, b: 0.922, a: 1}
+  lineWidthScale: 1
+  bloomPetals: 9
+  bloomLayers: 4
+  completion: 0

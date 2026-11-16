@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc48a216b1d6541d1a44a9e570369e8d, type: 3}
+  m_Name: 08_seed
+  m_EditorClassIdentifier: ShadowBloom.Core::ShadowBloom.PuzzleStage
+  stageId: 08_seed
+  displayName: The seed
+  hint: Seven circles, one flower. Stack them up.
+  difficulty: 3
+  isTutorial: 0
+  curve:
+    kind: 7
+    samples: 96
+    petals: 0
+    p: 0
+    q: 0
+    minorRadius: 0.5
+    height: 0.22
+    loops: 0
+    tiltDegrees: 0
+  matchSamples: 48
+  initialEuler: {x: 60, y: 120, z: -45}
+  solutionEuler: {x: 0, y: 0, z: 0}
+  tolerance: 0.04
+  holdSeconds: 0.9
+  lineColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightColor: {r: 0.949, g: 0.941, b: 0.922, a: 1}
+  lineWidthScale: 1
+  bloomPetals: 6
+  bloomLayers: 4
+  completion: 0

@@ -38,6 +38,8 @@ namespace ShadowBloom
         [SerializeField] float _idleHintSeconds = 15f;
         [Tooltip("Safety net: if the bloom never reports Finished, the Solved panel still appears this long after it should have.")]
         [SerializeField] float _solvedRevealFallback = 1.5f;
+        [Tooltip("After the first Quit press, a second press within this time closes the app.")]
+        [SerializeField] float _quitConfirmSeconds = 3f;
 
         public GameFlow Flow { get; private set; }
         public PuzzleStage CurrentStage => _active[Flow.StageIndex];
@@ -49,6 +51,10 @@ namespace ShadowBloom
         public GardenController Garden => _garden;
         /// <summary>Local date source for the Daily Shadow (tests inject a fixed date).</summary>
         public Func<DateTime> Clock { get; set; } = () => DateTime.Now;
+        /// <summary>Closes the app (tests inject a recorder so the Editor keeps playing).</summary>
+        public Action QuitAction { get; set; } = QuitApplication;
+        /// <summary>The first Quit press arms it; a second press before this time quits. Negative = not armed.</summary>
+        float _quitArmedUntil = -1f;
 
         ProgressSaveSystem _save;
         PuzzleStage[] _active;
@@ -128,6 +134,7 @@ namespace ShadowBloom
             _ui.DailyPressed += StartDaily;
             _ui.AssistPressed += ToggleAssist;
             _ui.HowToPlayPressed += ShowHowToPlay;
+            _ui.QuitPressed += Quit;
         }
 
         void OnDisable()
@@ -150,6 +157,7 @@ namespace ShadowBloom
             _ui.DailyPressed -= StartDaily;
             _ui.AssistPressed -= ToggleAssist;
             _ui.HowToPlayPressed -= ShowHowToPlay;
+            _ui.QuitPressed -= Quit;
         }
 
         void Start()
@@ -275,6 +283,41 @@ namespace ShadowBloom
             Flow.Resume();
         }
 
+        /// <summary>
+        /// Pause panel: the first press asks for confirmation ("Press again to quit"), a second press within
+        /// <see cref="_quitConfirmSeconds"/> closes the app. Progress is already saved on every solve.
+        /// </summary>
+        public void Quit()
+        {
+            if (Flow.State != GameState.Paused) return;
+            if (_quitArmedUntil < 0f || Time.unscaledTime > _quitArmedUntil)
+            {
+                _quitArmedUntil = Time.unscaledTime + _quitConfirmSeconds;
+                _ui.SetQuitArmed(true);
+                return;
+            }
+            Debug.Log("[ShadowBloom] quit");
+            DisarmQuit();
+            PlayerPrefs.Save();
+            QuitAction?.Invoke();
+        }
+
+        void DisarmQuit()
+        {
+            if (_quitArmedUntil < 0f) return;
+            _quitArmedUntil = -1f;
+            _ui.SetQuitArmed(false);
+        }
+
+        static void QuitApplication()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+        }
+
         void NextHowToPlayCard()
         {
             Debug.Log($"[ShadowBloom] how-to-play card {_howToPlayCard + 1} of {_howToPlayLast + 1} done");
@@ -349,6 +392,7 @@ namespace ShadowBloom
         void OnStateChanged(GameState prev, GameState next)
         {
             Debug.Log($"[ShadowBloom] state {prev} -> {next}");
+            DisarmQuit();
             if (next == GameState.Solved) Milestone("solved");
             UpdateInputGate();
             bool paused = next == GameState.Paused;
@@ -515,6 +559,7 @@ namespace ShadowBloom
 
         void Update()
         {
+            if (_quitArmedUntil >= 0f && Time.unscaledTime > _quitArmedUntil) DisarmQuit();
             if (Flow.State == GameState.Transition)
             {
                 _transitionTimer -= Time.deltaTime;
@@ -665,7 +710,7 @@ namespace ShadowBloom
                         Title = fromEnd ? (_dailyMode ? UiCopy.DailyDoneTitle : UiCopy.Complete) : UiCopy.StageName(stage),
                         Progress = fromEnd ? -1 : pip, ProgressCount = count,
                         Primary = UiCopy.Resume,
-                        Retry = !fromEnd, Reposition = !fromEnd, Settings = true, Restart = !fromEnd && !_dailyMode,
+                        Retry = !fromEnd, Reposition = !fromEnd, Settings = true, Restart = !fromEnd && !_dailyMode, Quit = true,
                         HowToPlay = !_dailyMode && (Flow.ResumeState == GameState.Tutorial || Flow.ResumeState == GameState.Playing)
                     };
                     break;

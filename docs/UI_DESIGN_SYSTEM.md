@@ -19,7 +19,7 @@ there. Canvas units are **millimetres** (world-space canvas scale 0.001), so siz
 |---|---|---|
 | **Primary** | The 3D curve, the projected target on the table, the bloom | Nothing overlaps it. The panel sits beside the puzzle and **hides completely during the bloom and stage transitions** |
 | **Secondary** | Stage eyebrow + progress ticks, stage title, alignment readout, one instruction | Panel typography: eyebrow 7 mm caps, title 17 mm sentence case, instruction 9 mm ink |
-| **Tertiary** | Retry, Pause, Move, Sound, Motion, Restart | Square ink outlines with flush-left labels under the content; never louder than the red primary block |
+| **Tertiary** | Retry, Pause, Move, Sound, Motion, Start over, Quit game | Square ink outlines with flush-left labels under the content; never louder than the red primary block |
 
 There is no screen-space HUD. There is exactly one world-space panel, anchored to the puzzle's surface frame.
 
@@ -166,7 +166,7 @@ no unreachable buttons.
 |---|---|---|
 | Primary | The one next action (Start, Confirm, Next stage, Resume, Play again, Finish) | Solid square ink block, paper label flush left |
 | Secondary | Retry, Pause, Move, Sound, Motion, Assist, How to play, Daily | Square ink outline (1.5 mm, ink @ 85 %), no fill, ink label flush left |
-| Quiet | Restart from stage 1 (rare, consequential) | Square outline at 25 % with a muted label |
+| Quiet | Start over (replays from stage 1), Quit game (rare, consequential) | Square outline at 25 % with a muted label |
 
 | State | Feedback | Time |
 |---|---|---|
@@ -201,7 +201,7 @@ rebuilds), and the component does no work while idle.
 | Near match | label `HOLD STEADY` (vermilion); the bar turns vermilion and fills with the hold progress. The puzzle itself keeps its calm pulse. No flashing |
 | Solved | **Hidden while the bloom plays.** Revealed when the bloom reports Finished (with an unpaused-time fallback, so it can never stay hidden): `Aligned.` (success), success pip, **Next stage** (last stage: **Finish**), Retry |
 | Transition | hidden; the next stage's panel fades in with its draw-on |
-| Paused | `PAUSED`, stage title + pips, **Resume**, Retry · Move, Sound · Motion, Assist · How to play, quiet "Restart from stage 1" (keeps earned progress) |
+| Paused | `PAUSED`, stage title + pips, **Resume**, Retry · Move; a muted `SETTINGS` caption + hairline over Sound · Motion and Assist · How to play; a hairline, then quiet "Start over" (replays from stage 1, keeps earned progress) · "Quit game". Quit asks once: the first press relabels it "Really quit?" for 3 s, a second press closes the app (progress is already saved). Two buttons per row: three-up cells (48 mm) are too narrow for the settings labels |
 | Completed | `ALL 5 SHADOWS ALIGNED` (success), title `BLOOM COMPLETE` in success, all pips success, **Play again**. The finale sculpture stays fully visible beside it |
 | Daily offer / completion | Offer: "Solve Daily Shadow to add a garden flower." Completion: `TODAY'S BLOOM`, streak and garden count, "Today's flower is in your garden. More tomorrow.", **Stages**. The garden returns with the next puzzle; saved flowers do not imply persistent physical anchoring |
 | Hands lost | warning card "Hands not visible. Hold them up in front of you." above the content after a 1.2 s grace. Shown **even while the rest of the panel is hidden** (bloom). Clears by itself when the hands return. No button is needed to recover |

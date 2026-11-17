@@ -161,7 +161,8 @@ namespace ShadowBloom.EditorTools
                          ("Pause", UiButtonStyle.Variant.Secondary), ("Move", UiButtonStyle.Variant.Secondary),
                          ("Sound", UiButtonStyle.Variant.Secondary), ("Motion", UiButtonStyle.Variant.Secondary),
                          ("Daily", UiButtonStyle.Variant.Secondary), ("Assist", UiButtonStyle.Variant.Secondary),
-                         ("HowToPlay", UiButtonStyle.Variant.Secondary), ("Restart", UiButtonStyle.Variant.Quiet)
+                         ("HowToPlay", UiButtonStyle.Variant.Secondary), ("Restart", UiButtonStyle.Variant.Quiet),
+                         ("Quit", UiButtonStyle.Variant.Quiet)
                      })
             {
                 var t = panel.Find(name);

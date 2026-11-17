@@ -74,11 +74,15 @@ namespace ShadowBloom
         // Pause
         public static string Paused => T("PAUSED", "ポーズ中");
         public static string Resume => T("Resume", "再開");
-        public static string RestartAll => T("Restart from stage 1", "ステージ1からやり直す");
+        // Half-width cell beside Quit: keep it short (replays from stage 1, earned progress is kept).
+        public static string RestartAll => T("Start over", "はじめから");
         public static string SoundOn => T("Sound: On", "サウンド: オン");
         public static string SoundOff => T("Sound: Off", "サウンド: オフ");
         public static string MotionFull => T("Motion: Full", "動き: ふつう");
         public static string MotionCalm => T("Motion: Calm", "動き: ひかえめ");
+        public static string SettingsCaption => T("SETTINGS", "設定");
+        public static string Quit => T("Quit game", "ゲームをやめる");
+        public static string QuitConfirm => T("Really quit?", "やめますか？");
 
         // Completion
         public static string Complete => T("Bloom complete", "すべて咲きました");
@@ -262,7 +266,8 @@ namespace ShadowBloom
             yield return Start; yield return Confirm; yield return Retry; yield return Pause; yield return Move;
             yield return Aligned; yield return NextStage; yield return Finish; yield return Paused; yield return Resume;
             yield return RestartAll; yield return SoundOn; yield return SoundOff; yield return MotionFull;
-            yield return MotionCalm; yield return Complete; yield return PlayAgain; yield return HandsLost;
+            yield return MotionCalm; yield return SettingsCaption; yield return Quit; yield return QuitConfirm;
+            yield return Complete; yield return PlayAgain; yield return HandsLost;
             yield return StageEyebrow(4, 5); yield return CompleteEyebrow(5);
             yield return AssistOn; yield return AssistOff; yield return DailyShadow; yield return DailyReplay;
             yield return DailyDoneTitle; yield return DailyReady; yield return BackToStages;

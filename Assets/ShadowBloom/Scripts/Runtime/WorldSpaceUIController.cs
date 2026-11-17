@@ -35,6 +35,8 @@ namespace ShadowBloom
         public string DailyLabel;
         /// <summary>Offer the how-to-play cards again (pause panel).</summary>
         public bool HowToPlay;
+        /// <summary>Offer "Quit game" (pause panel, beside Restart; asks for a second press).</summary>
+        public bool Quit;
         /// <summary>Stage progress pips: index of the current stage, or -1 to hide them.</summary>
         public int Progress;
         public int ProgressCount;
@@ -101,6 +103,9 @@ namespace ShadowBloom
         [SerializeField] TMP_Text _assistLabel;
         [SerializeField] Button _howToPlay;
         [SerializeField] TMP_Text _howToPlayLabel;
+        [Tooltip("Optional; cloned from the Restart button at runtime when missing, so the scene needs no rebuild.")]
+        [SerializeField] Button _quit;
+        [SerializeField] TMP_Text _quitLabel;
         [Tooltip("Max angle from the head-to-puzzle line to the panel's far edge (FoV-aware placement).")]
         [SerializeField, Range(20f, 50f)] float _edgeDegrees = PanelPlacement.DefaultEdgeDegrees;
         [SerializeField] float _cooldown = 0.4f;
@@ -128,6 +133,7 @@ namespace ShadowBloom
         public event Action DailyPressed;
         public event Action AssistPressed;
         public event Action HowToPlayPressed;
+        public event Action QuitPressed;
         /// <summary>Any accepted press (audio feedback).</summary>
         public event Action ButtonPressed;
 
@@ -144,6 +150,11 @@ namespace ShadowBloom
         string _statusText;
         string _shownStatus = "\u0001";
         bool _hintDimmed;
+        bool _quitArmed;
+        // Pause panel grouping, created at runtime from existing parts: "SETTINGS" caption + hairline above the
+        // comfort toggles, and a hairline above the Restart / Quit row.
+        TMP_Text _settingsCaption;
+        Image _settingsRule, _footerRule;
 
         UiView _view = UiView.HiddenView;
         UiView _target = UiView.HiddenView;
@@ -181,6 +192,9 @@ namespace ShadowBloom
             Bind(_daily, () => DailyPressed?.Invoke());
             Bind(_assist, () => AssistPressed?.Invoke());
             Bind(_howToPlay, () => HowToPlayPressed?.Invoke());
+            EnsureClone(ref _quit, ref _quitLabel, "Quit", _restart);
+            Bind(_quit, () => QuitPressed?.Invoke());
+            EnsureSectionParts();
             CachePips();
             ApplyTheme();
             if (_group != null) { _group.alpha = 0f; SetInteractable(false); }
@@ -193,11 +207,12 @@ namespace ShadowBloom
             foreach (Transform c in _pips) if (c.TryGetComponent<Image>(out var img)) _pipImages.Add(img);
         }
 
-        /// <summary>New buttons share the Motion button's look, poke surface and press feedback.</summary>
-        void EnsureClone(ref Button button, ref TMP_Text label, string name)
+        /// <summary>New buttons share the source button's look (Motion unless given), poke surface and press feedback.</summary>
+        void EnsureClone(ref Button button, ref TMP_Text label, string name, Button source = null)
         {
-            if (button != null || _motion == null) return;
-            var go = Instantiate(_motion.gameObject, _motion.transform.parent);
+            if (source == null) source = _motion;
+            if (button != null || source == null) return;
+            var go = Instantiate(source.gameObject, source.transform.parent);
             go.name = name;
             button = go.GetComponent<Button>();
             button.onClick.RemoveAllListeners();
@@ -207,6 +222,40 @@ namespace ShadowBloom
             go.SetActive(false);
         }
 
+        /// <summary>The section caption copies the alignment caption's text style; the hairlines copy the divider.</summary>
+        void EnsureSectionParts()
+        {
+            if (_settingsCaption == null && _alignmentLabel != null)
+            {
+                var go = Instantiate(_alignmentLabel.gameObject, _alignmentLabel.transform.parent);
+                go.name = "SettingsCaption";
+                _settingsCaption = go.GetComponent<TMP_Text>();
+                go.SetActive(false);
+            }
+            if (_divider == null) return;
+            if (_settingsRule == null) _settingsRule = CloneRule("SettingsRule");
+            if (_footerRule == null) _footerRule = CloneRule("FooterRule");
+        }
+
+        Image CloneRule(string name)
+        {
+            var go = Instantiate(_divider.gameObject, _divider.transform.parent);
+            go.name = name;
+            go.SetActive(false);
+            return go.GetComponent<Image>();
+        }
+
+        /// <summary>
+        /// Quit's confirmation step: the label asks for the second press until disarmed. Text only: UiButtonStyle
+        /// owns the label colour (canvas-renderer tint over a white vertex colour).
+        /// </summary>
+        public void SetQuitArmed(bool armed)
+        {
+            _quitArmed = armed;
+            if (_quitLabel != null) _quitLabel.text = armed ? UiCopy.QuitConfirm : UiCopy.Quit;
+        }
+
+        public Button QuitButton => _quit;
         public Button DailyButton => _daily;
         public Button AssistButton => _assist;
         public Button HowToPlayButton => _howToPlay;
@@ -245,13 +294,16 @@ namespace ShadowBloom
             Style(_hint, t.hintSize, FontStyles.Normal, t.text, 0f);
             Style(_status, t.hintSize, FontStyles.Normal, t.text, 0f);
             Style(_alignmentLabel, t.captionSize, FontStyles.Bold, t.textMuted, t.eyebrowSpacing * 0.7f);
+            Style(_settingsCaption, t.captionSize, FontStyles.Bold, t.textMuted, t.eyebrowSpacing * 0.7f);
+            if (_settingsCaption != null) _settingsCaption.textWrappingMode = TextWrappingModes.NoWrap;
             Style(_stageIndex, t.indexSize, FontStyles.Bold, t.textMuted, 0f);
             if (_stageIndex != null) _stageIndex.textWrappingMode = TextWrappingModes.NoWrap;
-            if (_divider != null)
+            foreach (var rule in new[] { _divider, _settingsRule, _footerRule })
             {
+                if (rule == null) continue;
                 // Faded with alpha rather than drawn thinner: sub-2 px lines crawl as the head moves.
-                _divider.color = new Color(t.text.r, t.text.g, t.text.b, 0.25f);
-                _divider.raycastTarget = false;
+                rule.color = new Color(t.text.r, t.text.g, t.text.b, 0.25f);
+                rule.raycastTarget = false;
             }
             if (_noticeBar != null) _noticeBar.color = t.warning;
             if (_notice != null && _notice.TryGetComponent<Image>(out var noticeBg))
@@ -485,7 +537,7 @@ namespace ShadowBloom
             a.Hidden == b.Hidden && a.Title == b.Title && (a.Primary == null) == (b.Primary == null) &&
             a.Retry == b.Retry && a.Pause == b.Pause && a.Reposition == b.Reposition && a.Alignment == b.Alignment &&
             a.Settings == b.Settings && a.Restart == b.Restart && (a.Progress < 0) == (b.Progress < 0) &&
-            a.Daily == b.Daily && a.DailyLabel == b.DailyLabel && a.HowToPlay == b.HowToPlay &&
+            a.Daily == b.Daily && a.DailyLabel == b.DailyLabel && a.HowToPlay == b.HowToPlay && a.Quit == b.Quit &&
             a.Accent == b.Accent && ShowsIndex(a) == ShowsIndex(b);
 
         /// <summary>Whether the stage index numeral shows. It takes the grid's left column, so toggling it moves the
@@ -552,6 +604,12 @@ namespace ShadowBloom
             if (_dailyLabel != null) _dailyLabel.text = v.DailyLabel ?? UiCopy.DailyShadow;
             SetButton(_restart, content && v.Restart);
             if (_restartLabel != null) _restartLabel.text = UiCopy.RestartAll;
+            SetButton(_quit, content && v.Quit);
+            if (_quitLabel != null) _quitLabel.text = _quitArmed ? UiCopy.QuitConfirm : UiCopy.Quit;
+            SetText(_settingsCaption, content && v.Settings ? UiCopy.SettingsCaption : null, t.textMuted);
+            if (_settingsRule != null) _settingsRule.gameObject.SetActive(content && v.Settings);
+            // Closes off the settings group from the rare, consequential Restart / Quit row.
+            if (_footerRule != null) _footerRule.gameObject.SetActive(content && v.Settings && (v.Restart || v.Quit));
             if (_alignmentRoot != null) _alignmentRoot.SetActive(content && v.Alignment);
             if (_alignmentLabel != null) _alignmentLabel.gameObject.SetActive(content && v.Alignment);
             // Above a primary block only: outlined buttons are already separated from the text by their own border.
@@ -687,7 +745,32 @@ namespace ShadowBloom
                 Place((RectTransform)_primary.transform, pad, y, cw, t.primaryHeight);
                 y += t.primaryHeight + t.targetGap;
             }
-            foreach (var row in SecondaryRows()) y = Row(y, t.secondaryHeight, row);
+            // Secondary rows, top to bottom: Daily; game actions; the SETTINGS group (with How to play); Start over / Quit.
+            float h2 = t.secondaryHeight;
+            y = Row(y, h2, _daily);
+            y = Row(y, h2, _retry, _pause, _reposition);
+            if (_settingsCaption != null && _settingsCaption.gameObject.activeSelf)
+            {
+                // Caption flush left, hairline running to the right edge at the caption's middle.
+                float lh = Mathf.Max(8f, Preferred(_settingsCaption, cw));
+                float capW = Mathf.Ceil(_settingsCaption.GetPreferredValues(_settingsCaption.text, 1000f, 0f).x);
+                Place(_settingsCaption.rectTransform, pad, y, capW, lh);
+                if (_settingsRule != null && _settingsRule.gameObject.activeSelf)
+                {
+                    float rx = pad + capW + t.gap;
+                    Place(_settingsRule.rectTransform, rx, y + (lh - t.dividerThickness) * 0.5f, pad + cw - rx, t.dividerThickness);
+                }
+                y += lh + t.gap * 0.5f;
+            }
+            // Two per row: three-up cells (48 mm) are too narrow for "Sound: On" at the secondary label size.
+            y = Row(y, h2, _sound, _motion);
+            y = Row(y, h2, _assist, _howToPlay);
+            if (_footerRule != null && _footerRule.gameObject.activeSelf && (Active(_restart) || Active(_quit)))
+            {
+                // Centred in the gap Row() already left, so the hairline adds no height.
+                Place(_footerRule.rectTransform, pad, y - (t.targetGap + t.dividerThickness) * 0.5f, cw, t.dividerThickness);
+            }
+            y = Row(y, h2, _restart, _quit);
 
             float height = _contentBottom > 0f ? _contentBottom + pad : 0f;
 
@@ -700,16 +783,6 @@ namespace ShadowBloom
             _panel.sizeDelta = Vector2.zero;
             if (_phase != Phase.FadingIn) _panel.anchoredPosition = Vector2.zero;
         }
-
-        /// <summary>Secondary button rows below the primary action, top to bottom (also their index order).</summary>
-        Button[][] SecondaryRows() => new[]
-        {
-            new[] { _daily },
-            new[] { _retry, _pause, _reposition },
-            new[] { _sound, _motion },
-            new[] { _assist, _howToPlay },
-            new[] { _restart },
-        };
 
         float Row(float y, float h, params Button[] buttons)
         {

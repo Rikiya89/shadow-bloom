@@ -326,6 +326,32 @@ namespace ShadowBloom.Tests
         }
 
         [UnityTest, Timeout(60000)]
+        public IEnumerator QuitFromThePausePanel_AsksForASecondPress_ThenQuits()
+        {
+            int quits = 0;
+            _game.QuitAction = () => quits++;
+            _game.Primary();
+            yield return Settle();
+            _game.TogglePause();
+            yield return PressVisible("Quit");
+            var label = _ui.Panel.Find("Quit/Label").GetComponent<TMP_Text>();
+            Assert.AreEqual(0, quits, "the first press only asks");
+            Assert.AreEqual(UiCopy.QuitConfirm, label.text);
+            yield return Check("paused_quit_armed");
+
+            // Unconfirmed, it disarms by itself: the next single press asks again instead of quitting.
+            yield return new WaitForSecondsRealtime(3.3f);
+            Assert.AreEqual(UiCopy.Quit, label.text, "disarmed after the confirm window");
+            yield return PressVisible("Quit");
+            Assert.AreEqual(0, quits, "a lone press after the window only asks again");
+
+            yield return new WaitForSecondsRealtime(0.5f);   // past the panel's double-poke cooldown
+            yield return PressVisible("Quit");
+            Assert.AreEqual(1, quits, "the second press quits");
+            Assert.AreEqual(GameState.Paused, _game.Flow.State);
+        }
+
+        [UnityTest, Timeout(60000)]
         public IEnumerator Tutorial_ShowsOneInstruction_AndMovesOnOnceDemonstrated()
         {
             _game.Primary();

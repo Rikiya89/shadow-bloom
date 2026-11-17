@@ -35,7 +35,7 @@ namespace ShadowBloom.EditorTools
                 {
                     Eyebrow = UiCopy.Paused, EyebrowTone = UiTone.Accent, Title = title,
                     Progress = 0, ProgressCount = Count, Primary = UiCopy.Resume,
-                    Retry = true, Reposition = true, Settings = true, Restart = true, HowToPlay = true
+                    Retry = true, Reposition = true, Settings = true, Restart = true, HowToPlay = true, Quit = true
                 },
                 UiPreviewState.HowToPlay => new UiView
                 {
